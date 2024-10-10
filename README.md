@@ -54,6 +54,10 @@ prod by blvnk.
   python3 -m pip install -r requirements.txt
   ```
 - In `main.py`, edit the constants `FOLDER` (folder where songs are downloaded to) & `URLS` (list of YouTube URLS or a playlist).
+- Run the script
+  ```bash
+  python3 main.py
+  ```
 
 
 ## Credits <!-- omit in toc -->
