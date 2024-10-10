@@ -1,0 +1,6 @@
+# virtual environment
+venv/
+
+# YT music dl files
+music/
+
