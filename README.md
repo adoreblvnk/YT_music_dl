@@ -28,8 +28,8 @@ Download YouTube Music songs / videos with artist, title, & album cover tagging.
 
 Known limitations:
 
-- Duplicate artist names (eg artist1 x artist2 - song (ft artist2)) on YouTube Music. This field is incorrectly set by the artist.
-- Doesn't standardise title names (eg artist - song [music video]). Fixed by updating the regex but man's too lazy.
+- Standardising works via regex, & regex splits artist & song name via "artist **-** song" (excluding YouTube Music songs).
+- Doesn't standardise certain title names (eg artist - song [music video]). Fixed by updating the regex but man's too lazy.
 
 prod by blvnk.
 

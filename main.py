@@ -5,11 +5,10 @@ import yt_dlp
 from mutagen.id3 import TALB, TIT2, TPE1
 from mutagen.mp3 import MP3
 
-FOLDER = "music"
-URLS = None
-URLS = []
+FOLDER: str = "test"
+URLS: list[str] = None
 
-ydl_opts = {
+YDL_OPTS = {
     "format": "mp3/bestaudio",
     # if music prepend "Artist, Artist - " else do nothing
     "outtmpl": {
@@ -46,7 +45,7 @@ ydl_opts = {
 Path(FOLDER).mkdir(exist_ok=True)
 
 if URLS is not None and len(URLS) > 0:
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    with yt_dlp.YoutubeDL(YDL_OPTS) as ydl:
         error_code = ydl.download(URLS)
 
 for file in Path(FOLDER).iterdir():
@@ -59,28 +58,31 @@ for file in Path(FOLDER).iterdir():
         .replace("？", "?")
         .replace("＊", "*")
     )
+
+    # standardising title string
+    title = new_file.split(" - ")[1]
     # remove | <channel>, eg Artist - Song | Pressplay
     new_file = re.sub(r"\|.*", "", new_file)
     # remove (.*?), eg Artist - Song (Official Music Video)
     new_file = re.sub(r"\((official|music).*?\)", "", new_file, flags=re.IGNORECASE)
-    # remove [.*], eg Artist - Song [S2.E1]
-    new_file = re.sub(r"\[.*\]", "", new_file)
-
-    # standardising artist string
-    artist_str = new_file.split(" - ")[0]
-    # use x (not X) to separate artists, eg Artist X Artist - Song
-    artist_str = re.sub(r" X ", " x ", artist_str)
-    # use x (not , ) to separate artists
-    artist_str = re.sub(r", ", " x ", artist_str)
-    artist_str = artist_str.strip()
-
-    # standardising title string
-    title = new_file.split(" - ")[1]
     # remove #.*?, eg Artist - Song #Album
     title = re.sub(r"#\w*", "", title)
+    # remove [.*], eg Artist - Song [S2.E1]
+    title = re.sub(r"\[.*\]", "", title)
     # use w/ (not W/) for with, eg Artist - Song W/ Artist
     title = re.sub(r"(w|W)/.*", "", title)
     title = title.strip()
+
+    # standardising artist list
+    artist_list = new_file.split(" - ")[0].split(", ")
+    # remove duplicate artists that appear in title
+    artist_list = [i for i in artist_list if i not in title]
+    
+    # creating artist string
+    artist_str = " x ".join(artist_list)
+    # use x (not X) to separate artists, eg Artist X Artist - Song
+    artist_str = re.sub(r" X ", " x ", artist_str)
+    artist_str = artist_str.strip()
 
     new_file_name = Path(f"{FOLDER}/{artist_str} - {title}.mp3")
     Path(file).rename(new_file_name)  # rename file
