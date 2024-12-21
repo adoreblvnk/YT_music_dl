@@ -53,7 +53,8 @@ for file in Path(FOLDER).iterdir():
     new_file = Path(file).stem
     # replacing characters
     new_file = (
-        new_file.replace("｜", "|")
+        new_file.replace("  ", " ")
+        .replace("｜", "|")
         .replace("⧸", "/")
         .replace("？", "?")
         .replace("＊", "*")
@@ -74,14 +75,12 @@ for file in Path(FOLDER).iterdir():
     title = title.strip()
 
     # standardising artist list
-    artist_list = new_file.split(" - ")[0].split(", ")
-    # remove duplicate artists that appear in title
-    artist_list = [i for i in artist_list if i not in title]
+    artist_list = re.split(r', | X | x ', new_file.split(" - ")[0])
+    # remove duplicate artists that appear in artist_list / title
+    artist_list = [i for i in list(dict.fromkeys(artist_list)) if i.lower() not in title.lower()]
 
     # creating artist string
     artist_str = " x ".join(artist_list)
-    # use x (not X) to separate artists, eg Artist X Artist - Song
-    artist_str = re.sub(r" X ", " x ", artist_str)
     artist_str = artist_str.strip()
 
     new_file_name = Path(f"{FOLDER}/{artist_str} - {title}.mp3")
@@ -96,9 +95,9 @@ for file in Path(FOLDER).iterdir():
     audio = MP3(new_file_name)
     if audio.tags is None:
         audio.add_tags()
-    audio.tags["TPE1"] = TPE1(text=artists)  # add artists
-    audio.tags["TIT2"] = TIT2(text=title)  # add title
-    audio.tags["TALB"] = TALB(text=title)  # add album name, possibly incorrect but idc
+    audio.tags.add(TPE1(text=artists))  # add artists
+    audio.tags.add(TIT2(text=title))  # add title
+    audio.tags.add(TALB(text=title))  # add album name, possibly incorrect but idc
     audio.tags.pop("TXXX:description", None)  # del comments
     audio.tags.pop("TXXX:synopsis", None)
     audio.save()
